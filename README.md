@@ -16,7 +16,6 @@ Criado por **Cristian**, do TLC de Santa Adélia.
 - **Versículos** — Trechos bíblicos que tocam o coração
 - **Vivendo em Cristo** — Reflexões sobre a fé no cotidiano
 - **Galeria** — Imagens que inspiram
-- **Contato** — Formas de entrar em contato
 
 ## 🛠️ Tecnologias
 
