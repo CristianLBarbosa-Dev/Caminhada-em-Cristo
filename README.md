@@ -16,7 +16,6 @@ Criado por **Cristian**, do TLC de Santa Adélia.
 - **Versículos** — Trechos bíblicos que tocam o coração
 - **Vivendo em Cristo** — Reflexões sobre a fé no cotidiano
 - **Galeria** — Imagens que inspiram
-- **Contato** — Formas de entrar em contato
 
 ## 🛠️ Tecnologias
 
@@ -55,7 +54,7 @@ O projeto respeita a preferência de usuários por movimento reduzido (`prefers-
 
 ## 📄 Licença
 
-Defina aqui a licença do projeto (ex: MIT) ou indique que o conteúdo é de uso pessoal/comunitário.
+Este projeto está licenciado sob a [Licença MIT](LICENSE).
 
 ## 💛 Agradecimentos
 
