@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel Administrativo — Caminhada em Cristo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Cinzel:wght@500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="icons/icon-192.png">
+<style>
+:root{
+  --ivory:#FBF7EF; --white:#FFFFFF; --beige:#F2E8D3; --beige-deep:#E8D9B6;
+  --gold:#B08A2E; --gold-deep:#8C6D22; --gold-light:#E3C878; --gold-pale:#F4E7C0;
+  --brown:#8C7355; --ink:#3A3226; --ink-soft:#6B5F4E;
+  --shadow-soft:0 20px 60px -24px rgba(120,96,40,.35);
+  --shadow-card:0 10px 30px -12px rgba(120,96,40,.22);
+  --radius-lg:24px; --radius-md:16px; --radius-sm:10px;
+  --font-display:'Cormorant Garamond', serif;
+  --font-body:'Lora', serif;
+  --font-label:'Cinzel', serif;
+  --danger:#a53232; --danger-deep:#7a2424;
+  --ok:#3f7a4f;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:var(--font-body);color:var(--ink);background:var(--ivory);line-height:1.6;}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;color:var(--ink);line-height:1.2;margin:0;}
+button{font:inherit;cursor:pointer;border:none;background:none;}
+input,select,textarea{font:inherit;}
+a{color:inherit;}
+[hidden]{display:none !important;}
+
+/* ---------- TELA DE LOGIN ---------- */
+.login-screen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:24px;background:radial-gradient(circle at 50% 0%, var(--gold-pale), var(--ivory) 60%);
+}
+.login-card{
+  width:100%;max-width:380px;background:var(--white);border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-soft);border:1px solid rgba(176,138,46,.16);
+  padding:clamp(32px,6vw,46px);
+}
+.login-brand{text-align:center;margin-bottom:28px;}
+.login-brand .icon-frame{
+  width:56px;height:56px;margin:0 auto 14px;border-radius:50%;
+  background:radial-gradient(circle,var(--gold-pale),transparent 70%);
+  display:flex;align-items:center;justify-content:center;
+}
+.login-brand .icon-frame svg{width:28px;height:28px;color:var(--gold-deep);}
+.login-brand h1{font-size:1.5rem;}
+.login-brand p{font-family:var(--font-label);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--brown);margin-top:6px;}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.field label{font-family:var(--font-label);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--brown);}
+.field input{
+  border:1.5px solid rgba(176,138,46,.3);border-radius:var(--radius-sm);
+  padding:13px 15px;background:var(--ivory);color:var(--ink);width:100%;
+}
+.field input:focus{border-color:var(--gold);outline:none;}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  font-family:var(--font-label);font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;
+  color:#3A2E0E;background:linear-gradient(135deg,var(--gold-light),var(--gold));
+  padding:14px 20px;border-radius:100px;transition:transform .25s ease, box-shadow .25s ease;
+}
+.btn:hover{box-shadow:0 10px 26px -10px rgba(176,138,46,.55);}
+.btn-outline{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-family:var(--font-label);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--gold-deep);background:var(--gold-pale);
+  padding:11px 18px;border-radius:100px;
+}
+.btn-danger{color:#fff;background:linear-gradient(135deg,var(--danger),var(--danger-deep));}
+.login-error{
+  background:#fbeceb;color:var(--danger-deep);border:1px solid rgba(165,50,50,.25);
+  border-radius:var(--radius-sm);padding:11px 14px;font-size:.86rem;margin-bottom:16px;
+}
+.login-hint{margin-top:20px;text-align:center;font-size:.78rem;color:var(--ink-soft);}
+.spinner{
+  width:16px;height:16px;border-radius:50%;border:2px solid rgba(58,50,38,.25);
+  border-top-color:#3A2E0E;animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.setup-note{
+  background:var(--gold-pale);border:1px solid rgba(176,138,46,.25);border-radius:var(--radius-sm);
+  padding:14px 16px;font-size:.82rem;color:var(--ink);margin-bottom:18px;line-height:1.6;
+}
+
+/* ---------- LAYOUT DO PAINEL ---------- */
+.admin-layout{display:none;min-height:100vh;grid-template-columns:250px 1fr;}
+.admin-layout.show{display:grid;}
+.sidebar{
+  background:var(--ink);color:var(--ivory);padding:26px 18px;display:flex;flex-direction:column;
+}
+.sidebar-brand{display:flex;align-items:center;gap:10px;padding:0 8px 24px;font-family:var(--font-display);font-size:1.1rem;}
+.sidebar-brand svg{width:22px;height:22px;color:var(--gold-light);}
+.sidebar-nav{display:flex;flex-direction:column;gap:4px;flex-grow:1;}
+.sidebar-nav button{
+  display:flex;align-items:center;gap:12px;text-align:left;
+  padding:12px 14px;border-radius:var(--radius-sm);color:rgba(251,247,239,.75);
+  font-size:.9rem;transition:background .2s ease, color .2s ease;
+}
+.sidebar-nav button svg{width:17px;height:17px;flex-shrink:0;}
+.sidebar-nav button:hover{background:rgba(251,247,239,.08);color:var(--ivory);}
+.sidebar-nav button.active{background:var(--gold-deep);color:#fff;}
+.sidebar-nav button[disabled]{opacity:.35;cursor:not-allowed;}
+.sidebar-user{
+  display:flex;align-items:center;gap:10px;padding:14px 10px;margin-top:12px;
+  border-top:1px solid rgba(251,247,239,.12);
+}
+.sidebar-user .avatar{
+  width:34px;height:34px;border-radius:50%;background:var(--gold-deep);
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-label);font-size:.8rem;
+}
+.sidebar-user .who{font-size:.8rem;line-height:1.3;}
+.sidebar-user .who b{display:block;}
+.sidebar-user .who span{opacity:.65;font-size:.72rem;text-transform:capitalize;}
+.sidebar-logout{
+  margin-top:8px;display:flex;align-items:center;gap:10px;padding:11px 14px;
+  border-radius:var(--radius-sm);color:rgba(251,247,239,.75);font-size:.86rem;
+}
+.sidebar-logout:hover{background:rgba(251,247,239,.08);color:var(--ivory);}
+
+.sidebar {
+  position: relative; transition: transform 0.3s ease;
+}
+
+/* Botão de abrir/fechar: só existe visualmente no mobile */
+.sidebar-toggle {
+  display: none;
+  position: fixed; top: 15px; left: 15px; width: 44px; height: 44px; align-items: center; justify-content: center;
+  border: none; border-radius: 12px; background: var(--gold-deep); color: var(--ivory); cursor: pointer; z-index: 2000; box-shadow: 0 4px 14px rgba(0,0,0,.18);
+  transition: left 0.3s ease, background 0.2s ease;
+}
+
+.sidebar-toggle:hover { background: var(--gold-light);
+}
+
+.sidebar-toggle:active { transform: scale(.95);
+}
+
+.sidebar-toggle svg { width: 22px; height: 22px;
+}
+
+.sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  opacity: 0; visibility: hidden; z-index: 1400; transition: opacity .3s ease, visibility .3s ease;
+}
+
+.sidebar-overlay.active { opacity: 1; visibility: visible;
+}
+
+@media (max-width: 768px) {
+
+  .admin-layout{ grid-template-columns: 1fr; }
+
+  .sidebar { position: fixed; top: 0; left: 0; width: min(320px, 85vw);
+    height: 100vh; z-index: 1500;
+  }
+
+  .admin-layout.sidebar-closed .sidebar { transform: translateX(-100%);
+  }
+
+  .sidebar-toggle { display: flex; }
+
+  .admin-layout:not(.sidebar-closed) .sidebar-toggle {
+    left: calc(min(320px, 85vw) - 58px);
+  }
+
+  .main{ padding-top: 78px; }
+
+}
+
+.main{padding:32px clamp(20px,4vw,42px);overflow-x:auto;}
+.main-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px;flex-wrap:wrap;gap:14px;}
+.main-header h2{font-size:1.7rem;}
+.badge-role{
+  font-family:var(--font-label);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;
+  background:var(--gold-pale);color:var(--gold-deep);padding:5px 12px;border-radius:100px;
+}
+
+.view{display:none;}
+.view.show{display:block;}
+
+/* Painel (dashboard) */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;margin-bottom:10px;}
+.stat-card{
+  background:var(--white);border-radius:var(--radius-md);box-shadow:var(--shadow-card);
+  border:1px solid rgba(176,138,46,.14);padding:22px 24px;
+}
+.stat-card .n{font-family:var(--font-display);font-size:2.1rem;color:var(--gold-deep);}
+.stat-card .l{font-family:var(--font-label);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--brown);margin-top:4px;}
+
+/* Tabela de pedidos */
+.panel-split{display:grid;grid-template-columns:1.5fr 1fr;gap:24px;align-items:start;}
+@media (max-width:960px){.panel-split{grid-template-columns:1fr;}}
+.data-card{
+  background:var(--white);border-radius:var(--radius-md);box-shadow:var(--shadow-card);
+  border:1px solid rgba(176,138,46,.14);overflow:hidden;
+}
+.data-table{width:100%;border-collapse:collapse;font-size:.88rem;}
+.data-table th{
+  text-align:left;font-family:var(--font-label);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--brown);padding:14px 16px;border-bottom:1px solid rgba(176,138,46,.14);background:var(--beige);
+}
+.data-table td{padding:13px 16px;border-bottom:1px solid rgba(176,138,46,.1);vertical-align:top;}
+.data-table tr{cursor:pointer;transition:background .2s ease;}
+.data-table tr:hover{background:var(--gold-pale);}
+.data-table tr.selected{background:var(--gold-pale);}
+.truncate{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.status-chip{
+  display:inline-block;padding:4px 11px;border-radius:100px;font-size:.72rem;font-family:var(--font-label);
+  letter-spacing:.04em;
+}
+.status-chip.Pendente{background:#fbeecf;color:#8a6a1c;}
+.status-chip.Em-oração{background:#e1ecf5;color:#2f5f8a;}
+.status-chip.Concluído{background:#e1f0e3;color:var(--ok);}
+.empty-state{padding:40px 20px;text-align:center;color:var(--ink-soft);font-size:.92rem;}
+
+.detail-card{
+  background:var(--white);border-radius:var(--radius-md);box-shadow:var(--shadow-card);
+  border:1px solid rgba(176,138,46,.14);padding:26px 26px 22px;position:sticky;top:20px;
+}
+.detail-card h3{font-size:1.2rem;margin-bottom:16px;}
+.detail-row{margin-bottom:14px;}
+.detail-row .l{font-family:var(--font-label);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--brown);margin-bottom:4px;}
+.detail-row .v{font-size:.94rem;color:var(--ink);white-space:pre-line;}
+.detail-actions{display:flex;flex-direction:column;gap:10px;margin-top:20px;}
+.detail-actions select{
+  border:1.5px solid rgba(176,138,46,.3);border-radius:var(--radius-sm);padding:11px 14px;
+  background:var(--ivory);color:var(--ink);width:100%;
+}
+
+/* Usuários / Configurações */
+.user-row{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  background:var(--white);border-radius:var(--radius-md);box-shadow:var(--shadow-card);
+  border:1px solid rgba(176,138,46,.14);padding:18px 22px;margin-bottom:14px;
+}
+.user-row .who{display:flex;align-items:center;gap:14px;}
+.user-row .avatar{
+  width:40px;height:40px;border-radius:50%;background:var(--gold-pale);color:var(--gold-deep);
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-label);
+}
+.stub-card{
+  background:var(--white);border-radius:var(--radius-md);box-shadow:var(--shadow-card);
+  border:1px solid rgba(176,138,46,.14);padding:44px 30px;text-align:center;color:var(--ink-soft);
+}
+.toast{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+  background:var(--ink);color:var(--ivory);padding:12px 22px;border-radius:100px;
+  font-size:.86rem;box-shadow:var(--shadow-soft);opacity:0;pointer-events:none;transition:opacity .3s ease;z-index:50;
+}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN / SETUP ================= -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="icon-frame">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 3v18M6 8h12"/></svg>
+      </div>
+      <h1>Caminhada em Cristo</h1>
+      <p>Painel Administrativo</p>
+    </div>
+
+    <!-- Login normal -->
+    <div id="loginForm">
+      <div class="login-error" id="loginError" hidden></div>
+      <div class="field">
+        <label for="loginUser">Usuário</label>
+        <input type="text" id="loginUser" autocomplete="username" placeholder="administrador ou leitor">
+      </div>
+      <div class="field">
+        <label for="loginPass">Senha</label>
+        <input type="password" id="loginPass" autocomplete="current-password">
+      </div>
+      <button class="btn" id="loginBtn" type="button"><span id="loginBtnLabel">Entrar</span></button>
+      <p class="login-hint">Acesso restrito à equipe de intercessão.</p>
+    </div>
+
+    <!-- Primeira configuração (bootstrap) -->
+    <div id="setupForm" hidden>
+      <div class="setup-note">
+        Este é o primeiro acesso ao painel. Vamos criar as duas contas iniciais
+        (<b>administrador</b> e <b>leitor</b>). Informe um e-mail real para cada uma —
+        ele será usado apenas para redefinição de senha, nunca é exibido publicamente.
+      </div>
+      <div class="login-error" id="setupError" hidden></div>
+      <div class="field">
+        <label>E-mail do Administrador Principal</label>
+        <input type="email" id="setupAdminEmail" placeholder="seuemail@exemplo.com">
+      </div>
+      <div class="field">
+        <label>E-mail do Leitor</label>
+        <input type="email" id="setupLeitorEmail" placeholder="outroemail@exemplo.com">
+      </div>
+      <div class="field">
+        <label>Chave de configuração</label>
+        <input type="password" id="setupChave" placeholder="a chave que você cadastrou no Firebase Console" autocomplete="off">
+      </div>
+      <div class="setup-note">
+        Essa chave impede que outra pessoa crie as contas antes de você. É a mesma
+        que você cadastrou em <b>Firestore &gt; config &gt; setup &gt; chave</b>
+        pelo Console do Firebase (veja o README).
+      </div>
+      <div class="setup-note">
+        Senhas iniciais: <b>administrador / caminhadacomcristo</b> e
+        <b>leitor / leituracomcristo</b>. Troque-as assim que entrar, em
+        Usuários &gt; Redefinir senha.
+      </div>
+      <button class="btn" id="setupBtn" type="button"><span id="setupBtnLabel">Criar contas e continuar</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= PAINEL ================= -->
+<div class="admin-layout" id="adminLayout">
+  <!-- BOTÃO ABRIR/FECHAR SIDEBAR -->
+  <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Abrir menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path d="M4 6h16M4 12h16M4 18h16"/>
+    </svg>
+  </button>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 3v18M6 8h12"/></svg>
+      Caminhada em Cristo
+    </div>
+    <nav class="sidebar-nav">
+      <button data-view="painel" class="active" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Painel
+      </button>
+      <button data-view="pedidos" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9Z"/></svg>
+        Pedidos de Oração
+      </button>
+      <button data-view="usuarios" id="navUsuarios" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c1-4 3.4-6 6.5-6s5.5 2 6.5 6"/><circle cx="18" cy="9" r="2.4"/><path d="M15.5 14c2.3.3 4 1.8 4.7 4.5"/></svg>
+        Usuários
+      </button>
+      <button data-view="config" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.7 7.7 0 0 0-1.7-1L15 3h-4l-.3 2.5a7.7 7.7 0 0 0-1.7 1l-2.4-1-2 3.4L6.6 11a7.6 7.6 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7.7 7.7 0 0 0 1.7 1L11 21h4l.3-2.5a7.7 7.7 0 0 0 1.7-1l2.4 1 2-3.4-2-1.6Z"/></svg>
+        Configurações
+      </button>
+    </nav>
+    <div class="sidebar-user">
+      <div class="avatar" id="userAvatar">?</div>
+      <div class="who"><b id="userName">—</b><span id="userRole">—</span></div>
+    </div>
+    <button class="sidebar-logout" id="logoutBtn" type="button">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+      Sair
+    </button>
+  </aside>
+
+  <main class="main">
+    <!-- PAINEL -->
+    <section class="view show" id="view-painel">
+      <div class="main-header"><h2>Painel</h2></div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="n" id="statTotal">–</div><div class="l">Pedidos no total</div></div>
+        <div class="stat-card"><div class="n" id="statPendente">–</div><div class="l">Pendentes</div></div>
+        <div class="stat-card"><div class="n" id="statOracao">–</div><div class="l">Em oração</div></div>
+        <div class="stat-card"><div class="n" id="statConcluido">–</div><div class="l">Concluídos</div></div>
+      </div>
+    </section>
+
+    <!-- PEDIDOS DE ORAÇÃO -->
+    <section class="view" id="view-pedidos">
+      <div class="main-header">
+        <h2>Pedidos de Oração</h2>
+        <span class="badge-role" id="pedidosRoleBadge"></span>
+      </div>
+      <div class="panel-split">
+        <div class="data-card">
+          <table class="data-table">
+            <thead><tr><th>Data</th><th>Nome</th><th>Cidade</th><th>Pedido</th><th>Situação</th></tr></thead>
+            <tbody id="pedidosTbody"><tr><td colspan="5" class="empty-state">Carregando pedidos…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="detail-card" id="pedidoDetail">
+          <p class="empty-state">Selecione um pedido na lista para ver os detalhes.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- STUBS (fora do escopo desta etapa) -->
+    <section class="view" id="view-oracoes"><div class="main-header"><h2>Orações</h2></div><div class="stub-card">A edição do conteúdo de Orações pelo painel chega em uma próxima etapa.</div></section>
+    <section class="view" id="view-liturgia"><div class="main-header"><h2>Liturgia</h2></div><div class="stub-card">A Liturgia Diária já é buscada automaticamente no site — a edição manual pelo painel chega em uma próxima etapa.</div></section>
+    <section class="view" id="view-santos"><div class="main-header"><h2>Santos</h2></div><div class="stub-card">O calendário de Santos já funciona no site — a edição manual pelo painel chega em uma próxima etapa.</div></section>
+
+    <!-- USUÁRIOS -->
+    <section class="view" id="view-usuarios">
+      <div class="main-header"><h2>Usuários</h2></div>
+      <div id="usuariosList"><p class="empty-state">Carregando usuários…</p></div>
+    </section>
+
+    <!-- CONFIGURAÇÕES -->
+    <section class="view" id="view-config">
+      <div class="main-header"><h2>Configurações</h2></div>
+      <div class="detail-card" style="position:static;max-width:420px;">
+        <h3>Minha conta</h3>
+        <div class="detail-row"><div class="l">Usuário</div><div class="v" id="cfgUsuario">—</div></div>
+        <div class="detail-row"><div class="l">E-mail</div><div class="v" id="cfgEmail">—</div></div>
+        <div class="detail-row"><div class="l">Nível de acesso</div><div class="v" id="cfgNivel">—</div></div>
+        <button class="btn-outline" id="cfgResetBtn" type="button" style="margin-top:10px;">Enviar redefinição de senha para meu e-mail</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase (compat SDK — funciona sem bundler) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  function toast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 3200);
+  }
+
+  function escapeHtml(str){
+    if(str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  var firebaseReady = false;
+  var firebaseDiag = '';
+  try{
+    if(typeof firebase === 'undefined'){
+      firebaseDiag = 'Os arquivos do Firebase não carregaram (verifique sua conexão com a internet e recarregue a página).';
+    } else if(typeof FIREBASE_CONFIG === 'undefined'){
+      firebaseDiag = 'O arquivo firebase-config.js não foi encontrado ou tem um erro de digitação (verifique se ele está na mesma pasta do admin.html).';
+    } else if(!FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.indexOf('COLE_AQUI') !== -1){
+      firebaseDiag = 'O firebase-config.js ainda está com os valores de exemplo — cole as chaves do seu projeto.';
+    } else {
+      firebase.initializeApp(FIREBASE_CONFIG);
+      firebaseReady = true;
+    }
+  }catch(e){
+    firebaseReady = false;
+    firebaseDiag = 'Erro ao iniciar o Firebase: ' + (e && e.message ? e.message : e);
+  }
+
+  if(!firebaseReady){
+    document.getElementById('loginForm').hidden = true;
+    document.getElementById('setupForm').hidden = true;
+    document.querySelector('.login-card').insertAdjacentHTML('beforeend',
+      '<div class="login-error">Este painel ainda não está configurado.<br><br>' + escapeHtml(firebaseDiag) + '<br><br>' +
+      'Se você já editou o <b>firebase-config.js</b> corretamente e a mensagem continua aparecendo, é provável que o Service Worker (o recurso que deixa o site funcionando offline) ainda esteja com a versão antiga do arquivo guardada. Abra as ferramentas do desenvolvedor do navegador (F12) → aba <b>Application</b>/<b>Aplicativo</b> → <b>Service Workers</b> → clique em <b>Unregister</b>/<b>Cancelar registro</b> → depois recarregue a página com Ctrl+Shift+R (ou Cmd+Shift+R no Mac).</div>');
+    return;
+  }
+
+  var auth = firebase.auth();
+  var db = firebase.firestore();
+
+  var PSEUDO_ROLE_LABEL = {admin:'Administrador Principal', leitor:'Leitor'};
+  var currentRole = null;
+  var currentUsuario = null;
+  var currentUid = null;
+  var bootstrapping = false; // evita que o onAuthStateChanged interrompa o cadastro em andamento
+
+  /* ---------------- BOOTSTRAP (primeiro acesso) ---------------- */
+  function checkBootstrapNeeded(){
+    db.collection('usuarios_publico').doc('administrador').get().then(function(doc){
+      if(!doc.exists){
+        document.getElementById('loginForm').hidden = true;
+        document.getElementById('setupForm').hidden = false;
+      }
+    }).catch(function(){ /* se falhar a leitura, segue para o login normal */ });
+  }
+  checkBootstrapNeeded();
+
+  function restApiSignUp(email, password){
+    var url = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + encodeURIComponent(FIREBASE_CONFIG.apiKey);
+    return fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email: email, password: password, returnSecureToken: false})
+    }).then(function(res){
+      return res.json().then(function(data){
+        if(!res.ok){
+          // Se uma tentativa anterior de configuração já criou esta conta
+          // (mas falhou em uma etapa seguinte), recupera o mesmo uid em vez
+          // de travar o cadastro para sempre.
+          if(data.error && data.error.message === 'EMAIL_EXISTS'){
+            return restApiSignIn(email, password);
+          }
+          throw new Error((data.error && data.error.message) || 'Falha ao criar conta');
+        }
+        return data.localId;
+      });
+    });
+  }
+
+  function restApiSignIn(email, password){
+    var url = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + encodeURIComponent(FIREBASE_CONFIG.apiKey);
+    return fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email: email, password: password, returnSecureToken: false})
+    }).then(function(res){
+      return res.json().then(function(data){
+        if(!res.ok){ throw new Error((data.error && data.error.message) || 'Não foi possível recuperar a conta existente. Se você já tentou configurar antes com uma senha diferente, peça para redefinir a senha dessa conta pelo Console do Firebase e tente de novo.'); }
+        return data.localId;
+      });
+    });
+  }
+
+  document.getElementById('setupBtn').addEventListener('click', function(){
+    var adminEmail = document.getElementById('setupAdminEmail').value.trim();
+    var leitorEmail = document.getElementById('setupLeitorEmail').value.trim();
+    var chave = document.getElementById('setupChave').value;
+    var errEl = document.getElementById('setupError');
+    errEl.hidden = true;
+    if(!adminEmail || !leitorEmail){
+      errEl.textContent = 'Informe um e-mail para cada conta.';
+      errEl.hidden = false;
+      return;
+    }
+    if(!chave){
+      errEl.textContent = 'Informe a chave de configuração cadastrada no Firebase Console.';
+      errEl.hidden = false;
+      return;
+    }
+    var btnLabel = document.getElementById('setupBtnLabel');
+    btnLabel.innerHTML = '<span class="spinner"></span>';
+    bootstrapping = true;
+
+    var adminUid, leitorUid;
+    restApiSignUp(adminEmail, 'caminhadacomcristo')
+      .then(function(uid){ adminUid = uid; return restApiSignUp(leitorEmail, 'leituracomcristo'); })
+      .then(function(uid){ leitorUid = uid; return auth.signInWithEmailAndPassword(adminEmail, 'caminhadacomcristo'); })
+      .then(function(){ return db.collection('usuarios').doc(adminUid).set({nivel:'admin', usuario:'administrador', email:adminEmail, chaveConfiguracao: chave}); })
+      .then(function(){ return db.collection('usuarios_publico').doc('administrador').set({email:adminEmail}); })
+      .then(function(){ return db.collection('usuarios').doc(leitorUid).set({nivel:'leitor', usuario:'leitor', email:leitorEmail}); })
+      .then(function(){ return db.collection('usuarios_publico').doc('leitor').set({email:leitorEmail}); })
+      .then(function(){
+        // Remove a chave do documento — só precisava dela no momento da criação.
+        return db.collection('usuarios').doc(adminUid).update({chaveConfiguracao: firebase.firestore.FieldValue.delete()});
+      })
+      .then(function(){
+        bootstrapping = false;
+        toast('Contas criadas! Você já está logado como administrador.');
+        return showDashboardFor(auth.currentUser);
+      })
+      .catch(function(err){
+        bootstrapping = false;
+        errEl.textContent = err.message || 'Não foi possível concluir a configuração.';
+        errEl.hidden = false;
+        btnLabel.textContent = 'Criar contas e continuar';
+      });
+  });
+
+  /* ---------------- LOGIN NORMAL ---------------- */
+  document.getElementById('loginBtn').addEventListener('click', function(){
+    var usuario = document.getElementById('loginUser').value.trim().toLowerCase();
+    var senha = document.getElementById('loginPass').value;
+    var errEl = document.getElementById('loginError');
+    errEl.hidden = true;
+    if(!usuario || !senha){
+      errEl.textContent = 'Preencha usuário e senha.';
+      errEl.hidden = false;
+      return;
+    }
+    var btnLabel = document.getElementById('loginBtnLabel');
+    btnLabel.innerHTML = '<span class="spinner"></span>';
+
+    db.collection('usuarios_publico').doc(usuario).get().then(function(doc){
+      if(!doc.exists){ throw new Error('Usuário não encontrado.'); }
+      return auth.signInWithEmailAndPassword(doc.data().email, senha);
+    }).catch(function(err){
+      errEl.textContent = (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential')
+        ? 'Senha incorreta.' : (err.message || 'Não foi possível entrar.');
+      errEl.hidden = false;
+      btnLabel.textContent = 'Entrar';
+    });
+  });
+  document.getElementById('loginPass').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') document.getElementById('loginBtn').click();
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', function(){
+    auth.signOut();
+  });
+
+  /* ---------------- SESSÃO / TROCA DE TELA LOGIN <-> PAINEL ---------------- */
+  function showDashboardFor(user){
+    if(!user) return Promise.resolve();
+    currentUid = user.uid;
+    return db.collection('usuarios').doc(user.uid).get().then(function(doc){
+      if(!doc.exists){
+        if(bootstrapping) return; // documento ainda sendo criado — a chamada explícita ao fim do bootstrap resolve isso
+        // Conta autenticada mas sem perfil de nível — por segurança, desloga.
+        auth.signOut();
+        return;
+      }
+      var data = doc.data();
+      currentRole = data.nivel;
+      currentUsuario = data.usuario;
+
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminLayout').classList.add('show');
+
+      document.getElementById('userAvatar').textContent = currentUsuario.charAt(0).toUpperCase();
+      document.getElementById('userName').textContent = currentUsuario;
+      document.getElementById('userRole').textContent = PSEUDO_ROLE_LABEL[currentRole] || currentRole;
+      document.getElementById('navUsuarios').disabled = (currentRole !== 'admin');
+      document.getElementById('pedidosRoleBadge').textContent = (currentRole === 'admin') ? 'Acesso total' : 'Pode atualizar a situação';
+
+      document.getElementById('cfgUsuario').textContent = currentUsuario;
+      document.getElementById('cfgEmail').textContent = data.email || '—';
+      document.getElementById('cfgNivel').textContent = PSEUDO_ROLE_LABEL[currentRole] || currentRole;
+
+      startPedidosListener();
+      if(currentRole === 'admin') loadUsuarios();
+    }).catch(function(){
+      if(bootstrapping) return;
+      toast('Não foi possível carregar seu perfil agora. Tente recarregar a página.');
+    });
+  }
+
+  auth.onAuthStateChanged(function(user){
+    if(!user){
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('adminLayout').classList.remove('show');
+      return;
+    }
+    showDashboardFor(user);
+  });
+
+  /* ---------------- NAVEGAÇÃO ENTRE TELAS ---------------- */
+  document.querySelectorAll('.sidebar-nav button[data-view]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(btn.disabled) return;
+      document.querySelectorAll('.sidebar-nav button').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('show'); });
+      document.getElementById('view-' + btn.getAttribute('data-view')).classList.add('show');
+      if(window.innerWidth <= 768) closeSidebar();
+    });
+  });
+
+  /* ---------------- SIDEBAR MÓVEL ---------------- */
+  var adminLayoutEl = document.getElementById('adminLayout');
+  var sidebarToggleBtn = document.getElementById('sidebarToggle');
+  var sidebarOverlayEl = document.getElementById('sidebarOverlay');
+
+  function isMobile(){ return window.innerWidth <= 768; }
+
+  function openSidebar(){
+    adminLayoutEl.classList.remove('sidebar-closed');
+    if(isMobile()) sidebarOverlayEl.classList.add('active');
+    sidebarToggleBtn.setAttribute('aria-label', 'Fechar menu');
+  }
+
+  function closeSidebar(){
+    adminLayoutEl.classList.add('sidebar-closed');
+    sidebarOverlayEl.classList.remove('active');
+    sidebarToggleBtn.setAttribute('aria-label', 'Abrir menu');
+  }
+
+  function toggleSidebar(){
+    if(adminLayoutEl.classList.contains('sidebar-closed')) openSidebar();
+    else closeSidebar();
+  }
+
+  sidebarToggleBtn.addEventListener('click', toggleSidebar);
+  sidebarOverlayEl.addEventListener('click', closeSidebar);
+
+  function setInitialSidebarState(){
+    if(isMobile()) closeSidebar();
+    else openSidebar();
+  }
+  setInitialSidebarState();
+
+  var sidebarResizeTimer = null;
+  window.addEventListener('resize', function(){
+    clearTimeout(sidebarResizeTimer);
+    sidebarResizeTimer = setTimeout(setInitialSidebarState, 150);
+  });
+
+  /* ---------------- PEDIDOS DE ORAÇÃO ---------------- */
+  var pedidosCache = [];
+  var selectedPedidoId = null;
+  var pedidosUnsub = null;
+
+  function formatDate(ts){
+    if(!ts) return '—';
+    var d = ts.toDate ? ts.toDate() : new Date(ts);
+    return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  }
+
+  function startPedidosListener(){
+    if(pedidosUnsub) return;
+    pedidosUnsub = db.collection('pedidos').orderBy('data', 'desc').onSnapshot(function(snap){
+      pedidosCache = [];
+      snap.forEach(function(doc){ pedidosCache.push(Object.assign({id: doc.id}, doc.data())); });
+      renderPedidosTable();
+      renderStats();
+    }, function(){
+      document.getElementById('pedidosTbody').innerHTML = '<tr><td colspan="5" class="empty-state">Não foi possível carregar os pedidos agora.</td></tr>';
+    });
+  }
+
+  function renderStats(){
+    var total = pedidosCache.length;
+    var pend = pedidosCache.filter(function(p){ return p.status === 'Pendente'; }).length;
+    var ora = pedidosCache.filter(function(p){ return p.status === 'Em oração'; }).length;
+    var conc = pedidosCache.filter(function(p){ return p.status === 'Concluído'; }).length;
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statPendente').textContent = pend;
+    document.getElementById('statOracao').textContent = ora;
+    document.getElementById('statConcluido').textContent = conc;
+  }
+
+  function renderPedidosTable(){
+    var tbody = document.getElementById('pedidosTbody');
+    if(!pedidosCache.length){
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Nenhum pedido de oração recebido ainda.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = pedidosCache.map(function(p){
+      var statusTexto = p.status || 'Pendente';
+      return '<tr data-id="' + escapeHtml(p.id) + '" class="' + (p.id === selectedPedidoId ? 'selected' : '') + '">' +
+        '<td>' + formatDate(p.data) + '</td>' +
+        '<td>' + (p.nome ? escapeHtml(p.nome) : '<em>Anônimo</em>') + '</td>' +
+        '<td>' + (p.cidade ? escapeHtml(p.cidade) : '—') + '</td>' +
+        '<td class="truncate">' + escapeHtml(p.pedido) + '</td>' +
+        '<td><span class="status-chip ' + escapeHtml(statusTexto.replace(' ', '-')) + '">' + escapeHtml(statusTexto) + '</span></td>' +
+      '</tr>';
+    }).join('');
+    tbody.querySelectorAll('tr[data-id]').forEach(function(row){
+      row.addEventListener('click', function(){
+        selectedPedidoId = row.getAttribute('data-id');
+        renderPedidosTable();
+        renderDetail();
+      });
+    });
+  }
+
+  function renderDetail(){
+    var detail = document.getElementById('pedidoDetail');
+    var p = pedidosCache.find(function(x){ return x.id === selectedPedidoId; });
+    if(!p){ detail.innerHTML = '<p class="empty-state">Selecione um pedido na lista para ver os detalhes.</p>'; return; }
+
+    var isAdmin = currentRole === 'admin';
+    detail.innerHTML =
+      '<h3>Detalhes do Pedido</h3>' +
+      '<div class="detail-row"><div class="l">Nome</div><div class="v">' + (p.nome ? escapeHtml(p.nome) : 'Anônimo') + '</div></div>' +
+      '<div class="detail-row"><div class="l">Cidade</div><div class="v">' + (p.cidade ? escapeHtml(p.cidade) : '—') + '</div></div>' +
+      '<div class="detail-row"><div class="l">Pedido</div><div class="v">' + escapeHtml(p.pedido) + '</div></div>' +
+      '<div class="detail-row"><div class="l">Data</div><div class="v">' + formatDate(p.data) + '</div></div>' +
+      '<div class="detail-actions">' +
+        '<select id="statusSelect">' +
+          ['Pendente','Em oração','Concluído'].map(function(s){
+            return '<option value="' + s + '"' + (p.status === s ? ' selected' : '') + '>' + s + '</option>';
+          }).join('') +
+        '</select>' +
+        '<button class="btn" id="saveStatusBtn" type="button">Salvar situação</button>' +
+        (isAdmin ?
+          '<button class="btn-danger" id="deletePedidoBtn" type="button" style="border-radius:100px;padding:11px 18px;font-family:var(--font-label);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;">Excluir</button>'
+        : '') +
+      '</div>';
+
+    document.getElementById('saveStatusBtn').addEventListener('click', function(){
+      var novoStatus = document.getElementById('statusSelect').value;
+      db.collection('pedidos').doc(p.id).update({status: novoStatus}).then(function(){
+        toast('Situação atualizada.');
+      }).catch(function(){ toast('Não foi possível salvar agora.'); });
+    });
+    if(isAdmin){
+      document.getElementById('deletePedidoBtn').addEventListener('click', function(){
+        if(!confirm('Excluir este pedido de oração? Essa ação não pode ser desfeita.')) return;
+        db.collection('pedidos').doc(p.id).delete().then(function(){
+          selectedPedidoId = null;
+          toast('Pedido excluído.');
+        }).catch(function(){ toast('Não foi possível excluir agora.'); });
+      });
+    }
+  }
+
+  /* ---------------- USUÁRIOS ---------------- */
+  function loadUsuarios(){
+    db.collection('usuarios').get().then(function(snap){
+      var rows = [];
+      snap.forEach(function(doc){ rows.push(doc.data()); });
+      var el = document.getElementById('usuariosList');
+      el.innerHTML = rows.map(function(u){
+        return '<div class="user-row">' +
+          '<div class="who"><div class="avatar">' + escapeHtml(u.usuario.charAt(0).toUpperCase()) + '</div>' +
+            '<div><b>' + escapeHtml(u.usuario) + '</b><div style="font-size:.8rem;color:var(--ink-soft);">' + escapeHtml(PSEUDO_ROLE_LABEL[u.nivel] || u.nivel) + ' · ' + escapeHtml(u.email) + '</div></div></div>' +
+          '<button class="btn-outline" data-reset="' + escapeHtml(u.email) + '" type="button">Redefinir senha</button>' +
+        '</div>';
+      }).join('');
+      el.querySelectorAll('[data-reset]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var email = btn.getAttribute('data-reset');
+          auth.sendPasswordResetEmail(email).then(function(){
+            toast('E-mail de redefinição enviado para ' + email + '.');
+          }).catch(function(){ toast('Não foi possível enviar o e-mail agora.'); });
+        });
+      });
+    });
+  }
+
+  document.getElementById('cfgResetBtn').addEventListener('click', function(){
+    var email = document.getElementById('cfgEmail').textContent;
+    if(!email || email === '—') return;
+    auth.sendPasswordResetEmail(email).then(function(){
+      toast('E-mail de redefinição enviado para ' + email + '.');
+    }).catch(function(){ toast('Não foi possível enviar o e-mail agora.'); });
+  });
+})();
+</script>
+</body>
+</html>

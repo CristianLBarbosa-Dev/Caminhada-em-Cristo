@@ -1,0 +1,92 @@
+rules_version = '2';
+
+// ============================================================
+// REGRAS DE SEGURANÇA — Caminhada em Cristo
+// Cole este conteúdo em: Firebase Console > Firestore Database
+// > Regras > substitua tudo > Publicar.
+// ============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function estaLogado() {
+      return request.auth != null;
+    }
+
+    function ehAdmin() {
+      return estaLogado() &&
+        exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.nivel == 'admin';
+    }
+
+    function chaveDeConfiguracaoValida() {
+      // Compara a chave enviada no cadastro com a chave secreta que você
+      // mesmo cadastrou manualmente pelo Console do Firebase, em um
+      // documento config/setup com um campo "chave". Isso impede que
+      // outra pessoa complete a primeira configuração do painel antes de
+      // você (veja o README, seção "Antes de publicar o site").
+      return exists(/databases/$(database)/documents/config/setup) &&
+        'chaveConfiguracao' in request.resource.data &&
+        request.resource.data.chaveConfiguracao ==
+          get(/databases/$(database)/documents/config/setup).data.chave;
+    }
+
+    // Pedidos de oração enviados pelo formulário público do site.
+    match /pedidos/{pedidoId} {
+      // Qualquer visitante pode enviar um pedido — mas só com o formato esperado,
+      // para impedir spam com campos estranhos ou textos gigantes.
+      allow create: if
+        request.resource.data.keys().hasOnly(['nome','cidade','pedido','status','data']) &&
+        request.resource.data.pedido is string &&
+        request.resource.data.pedido.size() > 0 && request.resource.data.pedido.size() <= 2000 &&
+        (request.resource.data.nome == null || (request.resource.data.nome is string && request.resource.data.nome.size() <= 120)) &&
+        (request.resource.data.cidade == null || (request.resource.data.cidade is string && request.resource.data.cidade.size() <= 120)) &&
+        request.resource.data.status == 'Pendente';
+
+      allow read: if estaLogado(); // só quem tem login (admin ou leitor) vê os pedidos
+
+      // Administrador e Leitor podem alterar a situação do pedido — e somente ela.
+      allow update: if estaLogado() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']) &&
+        request.resource.data.status in ['Pendente', 'Em oração', 'Concluído'];
+
+      allow delete: if ehAdmin(); // só o Administrador Principal exclui
+    }
+
+    // Perfil de cada usuário do painel (nível de acesso), indexado pelo uid do Firebase Auth.
+    match /usuarios/{uid} {
+      allow read: if estaLogado();
+      // Só o Administrador Principal cria/edita usuários — exceto na primeira
+      // configuração do site, quando ainda não existe nenhum administrador
+      // e a pessoa sabe a chave de configuração secreta (veja função acima).
+      allow create: if ehAdmin() ||
+        (request.auth.uid == uid &&
+         !exists(/databases/$(database)/documents/usuarios_publico/administrador) &&
+         chaveDeConfiguracaoValida());
+      // O próprio usuário recém-criado pode remover o campo temporário
+      // "chaveConfiguracao" do seu documento logo em seguida (limpeza),
+      // ou o Administrador pode editar/excluir normalmente.
+      allow update: if ehAdmin() ||
+        (request.auth.uid == uid &&
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['chaveConfiguracao']));
+      allow delete: if ehAdmin();
+    }
+
+    // Mapa público "nome de usuário -> e-mail", necessário para a tela de
+    // login aceitar "administrador"/"leitor" em vez de exigir o e-mail.
+    // Não guarda senha nem dado sensível — só o e-mail associado ao usuário.
+    match /usuarios_publico/{usuario} {
+      allow read: if true;
+      allow create: if ehAdmin() ||
+        (!exists(/databases/$(database)/documents/usuarios_publico/administrador) &&
+         chaveDeConfiguracaoValida());
+      allow update, delete: if ehAdmin();
+    }
+
+    // config/setup guarda a chave secreta de primeira configuração.
+    // Você mesmo cria esse documento pelo Console do Firebase (que tem
+    // acesso total, ignorando estas regras) — por isso não existe nenhuma
+    // regra "allow" abaixo: nenhum visitante ou usuário do site consegue
+    // ler ou escrever aqui pelo app. Fica protegido por padrão.
+  }
+}
