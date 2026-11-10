@@ -548,9 +548,9 @@ a{color:inherit;}
     bootstrapping = true;
 
     var adminUid, leitorUid;
-    restApiSignUp(adminEmail, 'caminhadacomcristo')
-      .then(function(uid){ adminUid = uid; return restApiSignUp(leitorEmail, 'leituracomcristo'); })
-      .then(function(uid){ leitorUid = uid; return auth.signInWithEmailAndPassword(adminEmail, 'caminhadacomcristo'); })
+    restApiSignUp(adminEmail, '...')
+      .then(function(uid){ adminUid = uid; return restApiSignUp(leitorEmail, '...'); })
+      .then(function(uid){ leitorUid = uid; return auth.signInWithEmailAndPassword(adminEmail, '...'); })
       .then(function(){ return db.collection('usuarios').doc(adminUid).set({nivel:'admin', usuario:'administrador', email:adminEmail, chaveConfiguracao: chave}); })
       .then(function(){ return db.collection('usuarios_publico').doc('administrador').set({email:adminEmail}); })
       .then(function(){ return db.collection('usuarios').doc(leitorUid).set({nivel:'leitor', usuario:'leitor', email:leitorEmail}); })
