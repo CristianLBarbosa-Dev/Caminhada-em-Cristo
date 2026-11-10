@@ -24,11 +24,11 @@
    ============================================================ */
 
 var FIREBASE_CONFIG = {
-  apiKey: "AIzaSyDJrmAUE8UxAypKSjnJ0-bISaryumPban8",
-  authDomain: "caminhda-em-cristo.firebaseapp.com",
-  projectId: "caminhda-em-cristo",
-  storageBucket: "caminhda-em-cristo.firebasestorage.app",
-  messagingSenderId: "181732025520",
-  appId: "1:181732025520:web:54f453d619188f38498775",
-  measurementId: "G-97YXK6E4Z4"
+  apiKey: "...",
+  authDomain: "...",
+  projectId: "...",
+  storageBucket: "...",
+  messagingSenderId: "...",
+  appId: "...",
+  measurementId: "..."
 };
